@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
+import { initDB } from './db/init.js'
 
 import menuRouter from './routes/menu.js'
 import terpenesRouter from './routes/terpenes.js'
@@ -37,9 +38,14 @@ app.use((_req, res) => res.status(404).json({ error: 'Not found' }))
 
 app.use((err, _req, res, _next) => {
   console.error(err)
-  res.status(500).json({ error: 'Internal server error' })
+  res.status(500).json({ error: 'Internal server error', detail: err.message, code: err.code })
 })
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`BISTROCALI server running on port ${PORT}`)
+  try {
+    await initDB()
+  } catch (err) {
+    console.error('DB init failed:', err.message)
+  }
 })
